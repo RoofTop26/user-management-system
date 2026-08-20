@@ -4,6 +4,7 @@ import com.example.user_management_system.entity.Admin;
 import com.example.user_management_system.repository.AdminRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.example.user_management_system.exception.InvalidLoginException;
 
 import java.util.Optional;
 
@@ -26,16 +27,11 @@ public class AdminService {
     }
 
     public Admin login(String username, String rawPassword) {
-        Optional<Admin> adminOpt = adminRepository.findByUsername(username);
-
-        if (adminOpt.isEmpty()) {
-            return null;
-        }
-
-        Admin admin = adminOpt.get();
+        Admin admin = adminRepository.findByUsername(username)
+                .orElseThrow(InvalidLoginException::new);
 
         if (!passwordEncoder.matches(rawPassword, admin.getPassword())) {
-            return null;
+            throw new InvalidLoginException();
         }
 
         return admin;

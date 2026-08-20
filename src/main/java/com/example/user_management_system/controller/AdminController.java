@@ -30,9 +30,6 @@ public class AdminController {
     public ResponseEntity<Admin> login(@RequestBody AdminRequest request) {
         Admin admin = adminService.login(request.getUsername(), request.getPassword());
 
-        if (admin == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
         admin.setPassword(null);
         return ResponseEntity.ok(admin);
