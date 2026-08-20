@@ -25,4 +25,16 @@ public class AdminController {
         Admin created = adminService.createAdmin(request.getUsername(), request.getPassword());
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<Admin> login(@RequestBody AdminRequest request) {
+        Admin admin = adminService.login(request.getUsername(), request.getPassword());
+
+        if (admin == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        admin.setPassword(null);
+        return ResponseEntity.ok(admin);
+    }
 }
