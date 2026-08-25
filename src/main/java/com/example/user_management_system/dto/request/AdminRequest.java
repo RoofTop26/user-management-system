@@ -1,4 +1,4 @@
-package com.example.user_management_system.dto;
+package com.example.user_management_system.dto.request;
 
 public class AdminRequest {
 

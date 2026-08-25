@@ -1,8 +1,10 @@
 package com.example.user_management_system.controller;
 
-import com.example.user_management_system.dto.AdminRequest;
+import com.example.user_management_system.dto.request.AdminRequest;
+import com.example.user_management_system.dto.response.LoginResponse;
 import com.example.user_management_system.entity.Admin;
 import com.example.user_management_system.service.AdminService;
+import com.example.user_management_system.util.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,11 +29,10 @@ public class AdminController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Admin> login(@RequestBody AdminRequest request) {
+    public ResponseEntity<LoginResponse> login(@RequestBody AdminRequest request) {
         Admin admin = adminService.login(request.getUsername(), request.getPassword());
 
-
-        admin.setPassword(null);
-        return ResponseEntity.ok(admin);
+        String token = JwtUtil.generateToken(admin.getUsername());
+        return ResponseEntity.ok(new LoginResponse(token, admin.getUsername()));
     }
 }
