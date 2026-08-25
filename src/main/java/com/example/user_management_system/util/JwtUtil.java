@@ -51,7 +51,5 @@ public class JwtUtil {
         System.out.println("Extracted username: " + username);
         System.out.println("Match admin1: " + "admin1".equals(username));
 
-        System.out.println("isTokenValid(token): " + isTokenValid(token));
-        System.out.println("isTokenValid(\"abc.def.ghi\"): " + isTokenValid("abc.def.ghi"));
     }
 }
