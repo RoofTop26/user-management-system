@@ -9,14 +9,21 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 public class JwtUtil {
-    private static final String SECRET_KEY = "week8-jwt-temporary-hardcoded-secret-key-day1-only-do-not-use-in-production";
+
+    private static final String SECRET_KEY = System.getenv("JWT_SECRET");
 
     private static final SecretKey KEY = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
+    private static final long EXPIRATION_MS = 24 * 60 * 60 * 1000;
+
     public static String generateToken(String username) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + EXPIRATION_MS);
+
         return Jwts.builder()
                 .subject(username)
-                .issuedAt(new Date())
+                .issuedAt(now)
+                .expiration(expiryDate)
                 .signWith(KEY)
                 .compact();
     }
@@ -50,6 +57,5 @@ public class JwtUtil {
         String username = extractUsername(token);
         System.out.println("Extracted username: " + username);
         System.out.println("Match admin1: " + "admin1".equals(username));
-
     }
 }
