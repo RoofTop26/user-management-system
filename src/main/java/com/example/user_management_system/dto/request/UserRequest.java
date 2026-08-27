@@ -1,4 +1,4 @@
-package com.example.user_management_system.dto;
+package com.example.user_management_system.dto.request;
 
 import com.example.user_management_system.entity.User;
 import jakarta.validation.constraints.NotBlank;
@@ -16,7 +16,7 @@ public class UserRequest {
     @Past(message = "dob phải là một ngày trong quá khứ")
     private LocalDate dob;
 
-    private User.Status status; // không bắt buộc, mặc định ACTIVE khi tạo mới
+    private User.Status status;
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

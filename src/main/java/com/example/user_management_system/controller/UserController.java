@@ -1,6 +1,6 @@
 package com.example.user_management_system.controller;
 
-import com.example.user_management_system.dto.UserRequest;
+import com.example.user_management_system.dto.request.UserRequest;
 import com.example.user_management_system.entity.User;
 import com.example.user_management_system.service.UserService;
 import jakarta.validation.Valid;
