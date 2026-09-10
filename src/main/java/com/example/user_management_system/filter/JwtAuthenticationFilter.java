@@ -13,16 +13,30 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private final JwtUtil jwtUtil;
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String method = request.getMethod();
         String path = request.getRequestURI();
 
-        if (method.equals("POST") && path.equals("/admins")) {
+        if (method.equals("POST") && path.equals("/admin/admins")) {
             return true;
         }
 
-        if (method.equals("POST") && path.equals("/admins/login")) {
+        if (method.equals("POST") && path.equals("/admin/login")) {
+            return true;
+        }
+
+        if (method.equals("POST") && path.equals("/portal/register")) {
+            return true;
+        }
+
+        if (method.equals("POST") && path.equals("/portal/login")) {
             return true;
         }
 
@@ -45,7 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
 
-        boolean isValid = JwtUtil.isTokenValid(token);
+        boolean isValid = jwtUtil.isTokenValid(token);
 
         if (!isValid) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -54,7 +68,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        JwtUtil.extractUsername(token);
+        String username = jwtUtil.extractUsername(token);
+        String role = jwtUtil.extractRole(token);
+
+        request.setAttribute("authenticatedUser", username);
+        request.setAttribute("authenticatedRole", role);
+
+        String path = request.getRequestURI();
+
+        if (path.startsWith("/admin/") && !role.equals("ADMIN")) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"error\": \"Chỉ ADMIN mới được truy cập khu vực này\"}");
+            return;
+        }
+
+        if (path.startsWith("/portal/") && !role.equals("USER")) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"error\": \"Chỉ USER mới được truy cập khu vực này\"}");
+            return;
+        }
 
         filterChain.doFilter(request, response);
     }

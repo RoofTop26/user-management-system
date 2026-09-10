@@ -26,20 +26,42 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
-    // Lỗi @Valid (name rỗng, dob không hợp lệ, ...) -> 400 kèm danh sách lỗi rõ ràng
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors()
-                .forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+
+        StringBuilder message = new StringBuilder();
+
+        ex.getBindingResult().getFieldErrors().forEach(err -> {
+            message.append(err.getField());
+            message.append(": ");
+            message.append(err.getDefaultMessage());
+            message.append("; ");
+        });
+
+        Map<String, String> body = new HashMap<>();
+        body.put("error", message.toString().trim());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    // Lưới an toàn cuối cùng cho lỗi chưa lường trước -> 500
+    @ExceptionHandler(UsernameAlreadyExistsException.class)
+    public ResponseEntity<Map<String, String>> handleUsernameExists(UsernameAlreadyExistsException ex) {
+        Map<String, String> body = new HashMap<>();
+        body.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGeneric(Exception ex) {
         Map<String, String> body = new HashMap<>();
         body.put("error", "Đã có lỗi xảy ra: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, String>> handleAccessDenied(AccessDeniedException ex) {
+        Map<String, String> body = new HashMap<>();
+        body.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 }

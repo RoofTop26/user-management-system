@@ -1,26 +1,26 @@
 package com.example.user_management_system.dto.request;
 
-import com.example.user_management_system.entity.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
-public class UserRequest {
+public class RegisterRequest {
 
+    @NotBlank(message = "username không được để trống")
     private String username;
 
+    @Size(min = 6, message = "password phải có ít nhất 6 ký tự")
     private String password;
 
     @NotBlank(message = "name không được để trống")
     private String name;
 
-    @NotNull(message = "dob không được để trống")
-    @Past(message = "dob phải là một ngày trong quá khứ")
+    @NotNull(message = "ngày sinh không được để trống")
+    @Past(message = "ngày sinh phải là một ngày trong quá khứ")
     private LocalDate dob;
-
-    private User.Status status;
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
@@ -30,6 +30,4 @@ public class UserRequest {
     public void setName(String name) { this.name = name; }
     public LocalDate getDob() { return dob; }
     public void setDob(LocalDate dob) { this.dob = dob; }
-    public User.Status getStatus() { return status; }
-    public void setStatus(User.Status status) { this.status = status; }
 }

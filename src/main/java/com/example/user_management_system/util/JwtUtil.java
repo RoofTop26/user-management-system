@@ -4,58 +4,58 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 
+@Component
 public class JwtUtil {
 
-    private static final String SECRET_KEY = System.getenv("JWT_SECRET");
-
-    private static final SecretKey KEY = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    private final SecretKey key;
 
     private static final long EXPIRATION_MS = 24 * 60 * 60 * 1000;
 
-    public static String generateToken(String username) {
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
+    public String generateToken(String username, String role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + EXPIRATION_MS);
 
         return Jwts.builder()
                 .subject(username)
+                .claim("role", role)
                 .issuedAt(now)
                 .expiration(expiryDate)
-                .signWith(KEY)
+                .signWith(key)
                 .compact();
     }
 
-    public static String extractUsername(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(KEY)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-
-        return claims.getSubject();
+    public String extractUsername(String token) {
+        return parseClaims(token).getSubject();
     }
 
-    public static boolean isTokenValid(String token) {
+    public String extractRole(String token) {
+        return parseClaims(token).get("role", String.class);
+    }
+
+    public boolean isTokenValid(String token) {
         try {
-            Jwts.parser()
-                    .verifyWith(KEY)
-                    .build()
-                    .parseSignedClaims(token);
+            parseClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
 
-    public static void main(String[] args) {
-        String token = generateToken("admin1");
-        System.out.println("Token: " + token);
-
-        String username = extractUsername(token);
-        System.out.println("Extracted username: " + username);
-        System.out.println("Match admin1: " + "admin1".equals(username));
+    private Claims parseClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }
