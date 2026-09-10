@@ -28,10 +28,20 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors()
-                .forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+
+        StringBuilder message = new StringBuilder();
+
+        ex.getBindingResult().getFieldErrors().forEach(err -> {
+            message.append(err.getField());
+            message.append(": ");
+            message.append(err.getDefaultMessage());
+            message.append("; ");
+        });
+
+        Map<String, String> body = new HashMap<>();
+        body.put("error", message.toString().trim());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
     @ExceptionHandler(UsernameAlreadyExistsException.class)
