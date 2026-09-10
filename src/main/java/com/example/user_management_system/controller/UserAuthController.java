@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.user_management_system.dto.request.PasswordChangeRequest;
 
 @RestController
 @RequestMapping("/portal")
@@ -44,9 +45,17 @@ public class UserAuthController {
 
     @PatchMapping("/me")
     public ResponseEntity<UserProfileResponse> updateMyProfile(HttpServletRequest request,
-                                                                 @RequestBody UserRequest updateRequest) {
+            @RequestBody UserRequest updateRequest) {
         String username = (String) request.getAttribute("authenticatedUser");
         UserProfileResponse profile = userAuthService.updateProfile(username, updateRequest);
         return ResponseEntity.ok(profile);
+    }
+
+    @PatchMapping("/me/password")
+    public ResponseEntity<Void> changePassword(HttpServletRequest request,
+            @Valid @RequestBody PasswordChangeRequest changeRequest) {
+        String username = (String) request.getAttribute("authenticatedUser");
+        userAuthService.changePassword(username, changeRequest.getOldPassword(), changeRequest.getNewPassword());
+        return ResponseEntity.ok().build();
     }
 }

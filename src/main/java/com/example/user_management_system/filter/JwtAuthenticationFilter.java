@@ -74,6 +74,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         request.setAttribute("authenticatedUser", username);
         request.setAttribute("authenticatedRole", role);
 
+        String path = request.getRequestURI();
+
+        if (path.startsWith("/admin/") && !role.equals("ADMIN")) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"error\": \"Chỉ ADMIN mới được truy cập khu vực này\"}");
+            return;
+        }
+
+        if (path.startsWith("/portal/") && !role.equals("USER")) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"error\": \"Chỉ USER mới được truy cập khu vực này\"}");
+            return;
+        }
+
         filterChain.doFilter(request, response);
     }
 }

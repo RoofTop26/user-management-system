@@ -5,6 +5,7 @@ import com.example.user_management_system.entity.User;
 import com.example.user_management_system.exception.UserNotFoundException;
 import com.example.user_management_system.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import com.example.user_management_system.exception.AccessDeniedException;
 
 import java.util.List;
 
@@ -56,8 +57,14 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public void deleteUser(Long id) {
-        User user = getUserById(id);
+    public void deleteUser(Long id, String callerAdminUsername) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+
+        if (user.getUsername() != null && user.getUsername().equals(callerAdminUsername)) {
+            throw new AccessDeniedException("Không thể tự xóa chính tài khoản của mình");
+        }
+
         userRepository.delete(user);
     }
 }

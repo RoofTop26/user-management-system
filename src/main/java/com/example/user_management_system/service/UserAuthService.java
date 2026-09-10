@@ -12,6 +12,7 @@ import com.example.user_management_system.repository.UserRepository;
 import com.example.user_management_system.util.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 
 @Service
 public class UserAuthService {
@@ -82,5 +83,24 @@ public class UserAuthService {
                 user.getDob(),
                 user.getStatus(),
                 user.getCreatedAt());
+    }
+
+    public void changePassword(String username, String oldPassword, String newPassword) {
+
+        Optional<User> userOptional = userRepository.findByUsername(username);
+
+        if (userOptional.isEmpty()) {
+            throw new UserNotFoundException(username);
+        }
+
+        User user = userOptional.get();
+
+        boolean isOldPasswordCorrect = passwordEncoder.matches(oldPassword, user.getPassword());
+        if (!isOldPasswordCorrect) {
+            throw new InvalidLoginException();
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 }
