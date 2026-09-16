@@ -12,11 +12,11 @@ import com.example.user_management_system.repository.UserRepository;
 import com.example.user_management_system.util.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 
 @Service
 public class UserAuthService {
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -27,7 +27,7 @@ public class UserAuthService {
         this.jwtUtil = jwtUtil;
     }
 
-    public User register(RegisterRequest request) {
+    public UserProfileResponse register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new UsernameAlreadyExistsException(request.getUsername());
         }
@@ -39,7 +39,9 @@ public class UserAuthService {
         user.setDob(request.getDob());
         user.setStatus(User.Status.ACTIVE);
 
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        return toProfileResponse(user);
     }
 
     public LoginResponse login(String username, String rawPassword) {
@@ -67,6 +69,7 @@ public class UserAuthService {
         if (request.getName() != null && !request.getName().isBlank()) {
             user.setName(request.getName());
         }
+
         if (request.getDob() != null) {
             user.setDob(request.getDob());
         }
@@ -86,7 +89,6 @@ public class UserAuthService {
     }
 
     public void changePassword(String username, String oldPassword, String newPassword) {
-
         Optional<User> userOptional = userRepository.findByUsername(username);
 
         if (userOptional.isEmpty()) {
