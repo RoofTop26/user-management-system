@@ -24,6 +24,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String method = request.getMethod();
         String path = request.getRequestURI();
 
+        if (method.equals("OPTIONS")) {
+            return true;
+        }
+
         if (method.equals("POST") && path.equals("/admin/admins")) {
             return true;
         }
