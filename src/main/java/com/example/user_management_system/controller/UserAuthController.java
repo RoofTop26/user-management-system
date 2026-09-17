@@ -5,7 +5,6 @@ import com.example.user_management_system.dto.request.RegisterRequest;
 import com.example.user_management_system.dto.request.UserRequest;
 import com.example.user_management_system.dto.response.LoginResponse;
 import com.example.user_management_system.dto.response.UserProfileResponse;
-import com.example.user_management_system.entity.User;
 import com.example.user_management_system.service.UserAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -25,8 +24,8 @@ public class UserAuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@Valid @RequestBody RegisterRequest request) {
-        User created = userAuthService.register(request);
+    public ResponseEntity<UserProfileResponse> register(@Valid @RequestBody RegisterRequest request) {
+        UserProfileResponse created = userAuthService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
