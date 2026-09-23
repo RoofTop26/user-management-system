@@ -36,6 +36,7 @@ public class UserAuthService {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getName());
+        user.setEmail(request.getEmail());
         user.setDob(request.getDob());
         user.setStatus(User.Status.ACTIVE);
 
@@ -83,6 +84,7 @@ public class UserAuthService {
                 user.getId(),
                 user.getUsername(),
                 user.getName(),
+                user.getEmail(),
                 user.getDob(),
                 user.getStatus(),
                 user.getCreatedAt());

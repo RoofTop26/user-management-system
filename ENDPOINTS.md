@@ -1,4 +1,4 @@
-## Admin (8 endpoint)
+## Admin (13 endpoint)
 
 | Method | Path | Quyền | Mô tả |
 |---|---|---|---|

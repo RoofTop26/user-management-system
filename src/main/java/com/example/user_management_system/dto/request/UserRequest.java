@@ -16,6 +16,8 @@ public class UserRequest {
     @NotBlank(message = "name không được để trống")
     private String name;
 
+    private String email;
+
     @NotNull(message = "dob không được để trống")
     @Past(message = "dob phải là một ngày trong quá khứ")
     private LocalDate dob;
@@ -28,6 +30,8 @@ public class UserRequest {
     public void setPassword(String password) { this.password = password; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
     public LocalDate getDob() { return dob; }
     public void setDob(LocalDate dob) { this.dob = dob; }
     public User.Status getStatus() { return status; }
