@@ -44,6 +44,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if (method.equals("POST") && path.equals("/portal/forgot-password")) {
+            return true;
+        }
+
+        if (method.equals("POST") && path.equals("/portal/reset-password")) {
+            return true;
+        }
+
         return false;
     }
 

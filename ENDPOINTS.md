@@ -16,12 +16,14 @@
 | PATCH | /admin/users/{id} | ADMIN | Admin sửa 1 phần thông tin User |
 | DELETE | /admin/users/{id} | ADMIN | Admin xoá 1 User (không chặn chính mình) |
 
-## Portal (5 endpoint)
+## Portal (7 endpoint)
 
 | Method | Path | Quyền | Mô tả |
 |---|---|---|---|
 | POST | /portal/register | PUBLIC | User tự đăng ký tài khoản |
 | POST | /portal/login | PUBLIC | User đăng nhập, trả về token role USER |
+| POST | /portal/forgot-password | PUBLIC | Gửi email đặt lại mật khẩu nếu email tồn tại |
+| POST | /portal/reset-password | PUBLIC | Đặt lại mật khẩu bằng token từ email |
 | GET | /portal/me | USER | User xem hồ sơ của chính mình |
 | PATCH | /portal/me | USER | User sửa hồ sơ (chỉ name, dob) |
 | PATCH | /portal/me/password | USER | User tự đổi password |
