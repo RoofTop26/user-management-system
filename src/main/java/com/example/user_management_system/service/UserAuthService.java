@@ -6,6 +6,7 @@ import com.example.user_management_system.dto.response.LoginResponse;
 import com.example.user_management_system.dto.response.UserProfileResponse;
 import com.example.user_management_system.entity.User;
 import com.example.user_management_system.exception.InvalidLoginException;
+import com.example.user_management_system.exception.InvalidResetTokenException;
 import com.example.user_management_system.exception.UserNotFoundException;
 import com.example.user_management_system.exception.UsernameAlreadyExistsException;
 import com.example.user_management_system.repository.UserRepository;
@@ -20,11 +21,13 @@ public class UserAuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final EmailService emailService;
 
-    public UserAuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public UserAuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.emailService = emailService;
     }
 
     public UserProfileResponse register(RegisterRequest request) {
@@ -36,6 +39,7 @@ public class UserAuthService {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getName());
+        user.setEmail(request.getEmail());
         user.setDob(request.getDob());
         user.setStatus(User.Status.ACTIVE);
 
@@ -54,6 +58,29 @@ public class UserAuthService {
 
         String token = jwtUtil.generateToken(user.getUsername(), "USER");
         return new LoginResponse(token, user.getUsername(), "USER");
+    }
+
+    public void forgotPassword(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            String token = jwtUtil.generateResetToken(user.getUsername());
+            String resetLink = "http://localhost:5174/reset-password?token=" + token;
+            emailService.sendResetPasswordEmail(user.getEmail(), resetLink);
+        }
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        if (!jwtUtil.isTokenValid(token) || !"reset".equals(jwtUtil.extractPurpose(token))) {
+            throw new InvalidResetTokenException();
+        }
+
+        String username = jwtUtil.extractUsername(token);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     public UserProfileResponse getProfile(String username) {
@@ -83,6 +110,7 @@ public class UserAuthService {
                 user.getId(),
                 user.getUsername(),
                 user.getName(),
+                user.getEmail(),
                 user.getDob(),
                 user.getStatus(),
                 user.getCreatedAt());

@@ -16,6 +16,7 @@ public class JwtUtil {
     private final SecretKey key;
 
     private static final long EXPIRATION_MS = 24 * 60 * 60 * 1000;
+    private static final long RESET_EXPIRATION_MS = 15 * 60 * 1000;
 
     public JwtUtil(@Value("${jwt.secret}") String secret) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
@@ -34,12 +35,29 @@ public class JwtUtil {
                 .compact();
     }
 
+    public String generateResetToken(String username) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + RESET_EXPIRATION_MS);
+
+        return Jwts.builder()
+                .subject(username)
+                .claim("purpose", "reset")
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(key)
+                .compact();
+    }
+
     public String extractUsername(String token) {
         return parseClaims(token).getSubject();
     }
 
     public String extractRole(String token) {
         return parseClaims(token).get("role", String.class);
+    }
+
+    public String extractPurpose(String token) {
+        return parseClaims(token).get("purpose", String.class);
     }
 
     public boolean isTokenValid(String token) {

@@ -4,7 +4,9 @@ import com.example.user_management_system.dto.request.AdminRequest;
 import com.example.user_management_system.dto.response.LoginResponse;
 import com.example.user_management_system.entity.Admin;
 import com.example.user_management_system.exception.AccessDeniedException;
+import com.example.user_management_system.exception.AdminNotFoundException;
 import com.example.user_management_system.exception.InvalidLoginException;
+import com.example.user_management_system.exception.UsernameAlreadyExistsException;
 import com.example.user_management_system.repository.AdminRepository;
 import com.example.user_management_system.util.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +27,9 @@ public class AdminService {
     }
 
     public Admin createAdmin(String username, String rawPassword) {
+        if (adminRepository.findByUsername(username).isPresent()) {
+            throw new UsernameAlreadyExistsException(username);
+        }
         Admin admin = new Admin();
         admin.setUsername(username);
         admin.setPassword(passwordEncoder.encode(rawPassword));
@@ -49,11 +54,15 @@ public class AdminService {
 
     public Admin getAdminById(Long id) {
         return adminRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy Admin với id: " + id));
+                .orElseThrow(() -> new AdminNotFoundException(id));
     }
 
     public Admin updateAdmin(Long id, AdminRequest request) {
         Admin admin = getAdminById(id);
+        if (!admin.getUsername().equals(request.getUsername())
+                && adminRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new UsernameAlreadyExistsException(request.getUsername());
+        }
         admin.setUsername(request.getUsername());
         admin.setPassword(passwordEncoder.encode(request.getPassword()));
         return adminRepository.save(admin);
@@ -62,6 +71,10 @@ public class AdminService {
     public Admin patchAdmin(Long id, AdminRequest request) {
         Admin admin = getAdminById(id);
         if (request.getUsername() != null && !request.getUsername().isBlank()) {
+            if (!admin.getUsername().equals(request.getUsername())
+                    && adminRepository.findByUsername(request.getUsername()).isPresent()) {
+                throw new UsernameAlreadyExistsException(request.getUsername());
+            }
             admin.setUsername(request.getUsername());
         }
         if (request.getPassword() != null && !request.getPassword().isBlank()) {

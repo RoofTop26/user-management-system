@@ -1,5 +1,6 @@
 package com.example.user_management_system.dto.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
@@ -17,6 +18,10 @@ public class RegisterRequest {
     @NotBlank(message = "name không được để trống")
     private String name;
 
+    @NotBlank(message = "email không được để trống")
+    @Email(message = "email không đúng định dạng")
+    private String email;
+
     @NotNull(message = "ngày sinh không được để trống")
     @Past(message = "ngày sinh phải là một ngày trong quá khứ")
     private LocalDate dob;
@@ -29,6 +34,9 @@ public class RegisterRequest {
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
     public LocalDate getDob() { return dob; }
     public void setDob(LocalDate dob) { this.dob = dob; }

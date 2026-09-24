@@ -1,7 +1,9 @@
 package com.example.user_management_system.controller;
 
 import com.example.user_management_system.dto.request.AdminRequest;
+import com.example.user_management_system.dto.request.ForgotPasswordRequest;
 import com.example.user_management_system.dto.request.RegisterRequest;
+import com.example.user_management_system.dto.request.ResetPasswordRequest;
 import com.example.user_management_system.dto.request.UserRequest;
 import com.example.user_management_system.dto.response.LoginResponse;
 import com.example.user_management_system.dto.response.UserProfileResponse;
@@ -12,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.user_management_system.dto.request.PasswordChangeRequest;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/portal")
@@ -33,6 +38,20 @@ public class UserAuthController {
     public ResponseEntity<LoginResponse> login(@RequestBody AdminRequest request) {
         LoginResponse response = userAuthService.login(request.getUsername(), request.getPassword());
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        userAuthService.forgotPassword(request.getEmail());
+        Map<String, String> body = new HashMap<>();
+        body.put("message", "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu");
+        return ResponseEntity.ok(body);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        userAuthService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/me")
