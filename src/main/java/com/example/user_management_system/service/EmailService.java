@@ -38,7 +38,9 @@ public class EmailService {
                 .build();
 
         try {
-            httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("Mailgun status: " + response.statusCode());
+            System.out.println("Mailgun response: " + response.body());
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

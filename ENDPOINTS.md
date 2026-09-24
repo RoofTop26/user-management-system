@@ -1,3 +1,5 @@
+## Tổng cộng: 20 endpoint (13 admin + 7 portal)
+
 ## Admin (13 endpoint)
 
 | Method | Path | Quyền | Mô tả |
