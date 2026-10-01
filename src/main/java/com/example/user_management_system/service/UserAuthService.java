@@ -8,6 +8,7 @@ import com.example.user_management_system.entity.User;
 import com.example.user_management_system.exception.AccessDeniedException;
 import com.example.user_management_system.exception.InvalidLoginException;
 import com.example.user_management_system.exception.InvalidResetTokenException;
+import com.example.user_management_system.exception.TooManyRequestsException;
 import com.example.user_management_system.exception.UserNotFoundException;
 import com.example.user_management_system.exception.UsernameAlreadyExistsException;
 import com.example.user_management_system.repository.UserRepository;
@@ -24,19 +25,25 @@ public class UserAuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final EmailService emailService;
+    private final RateLimitService rateLimitService;
     private final String portalUrl;
 
-    public UserAuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, EmailService emailService, @Value("${app.portal-url}") String portalUrl) {
+    public UserAuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, EmailService emailService, RateLimitService rateLimitService, @Value("${app.portal-url}") String portalUrl) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.emailService = emailService;
+        this.rateLimitService = rateLimitService;
         this.portalUrl = portalUrl;
     }
 
     public UserProfileResponse register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new UsernameAlreadyExistsException(request.getUsername());
+        }
+
+        if (!rateLimitService.isAllowed("register:" + request.getEmail(), 300)) {
+            throw new TooManyRequestsException();
         }
 
         User user = new User();
@@ -86,6 +93,10 @@ public class UserAuthService {
     }
 
     public void forgotPassword(String email) {
+        if (!rateLimitService.isAllowed("forgot-pwd:" + email, 60)) {
+            return;
+        }
+
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
