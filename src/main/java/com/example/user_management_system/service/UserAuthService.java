@@ -42,7 +42,13 @@ public class UserAuthService {
             throw new UsernameAlreadyExistsException(request.getUsername());
         }
 
-        if (!rateLimitService.isAllowed("register:" + request.getEmail(), 300)) {
+        boolean allowed = true;
+        try {
+            allowed = rateLimitService.isAllowed("register:" + request.getEmail(), 300);
+        } catch (Exception ex) {
+            System.out.println("Redis lỗi, bỏ qua rate limit: " + ex.getMessage());
+        }
+        if (!allowed) {
             throw new TooManyRequestsException();
         }
 
@@ -77,6 +83,16 @@ public class UserAuthService {
     }
 
     public LoginResponse login(String username, String rawPassword) {
+        boolean allowed = true;
+        try {
+            allowed = rateLimitService.isAllowed("login:" + username, 5, 60);
+        } catch (Exception ex) {
+            System.out.println("Redis lỗi, bỏ qua rate limit: " + ex.getMessage());
+        }
+        if (!allowed) {
+            throw new InvalidLoginException();
+        }
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(InvalidLoginException::new);
 
@@ -93,7 +109,13 @@ public class UserAuthService {
     }
 
     public void forgotPassword(String email) {
-        if (!rateLimitService.isAllowed("forgot-pwd:" + email, 60)) {
+        boolean allowed = true;
+        try {
+            allowed = rateLimitService.isAllowed("forgot-pwd:" + email, 60);
+        } catch (Exception ex) {
+            System.out.println("Redis lỗi, bỏ qua rate limit: " + ex.getMessage());
+        }
+        if (!allowed) {
             return;
         }
 

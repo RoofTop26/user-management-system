@@ -18,4 +18,16 @@ public class RateLimitService {
         Boolean success = redisTemplate.opsForValue().setIfAbsent(key, "1", Duration.ofSeconds(cooldownSeconds));
         return Boolean.TRUE.equals(success);
     }
+
+    public boolean isAllowed(String key, int maxAttempts, long windowSeconds) {
+        long currentWindow = System.currentTimeMillis() / 1000 / windowSeconds;
+        String windowKey = key + ":" + currentWindow;
+
+        Long count = redisTemplate.opsForValue().increment(windowKey);
+        if (count != null && count == 1) {
+            redisTemplate.expire(windowKey, Duration.ofSeconds(windowSeconds));
+        }
+
+        return count != null && count <= maxAttempts;
+    }
 }
