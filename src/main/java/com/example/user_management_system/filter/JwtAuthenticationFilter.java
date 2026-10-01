@@ -40,6 +40,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if (method.equals("POST") && path.equals("/portal/verify-email")) {
+            return true;
+        }
+
         if (method.equals("POST") && path.equals("/portal/login")) {
             return true;
         }

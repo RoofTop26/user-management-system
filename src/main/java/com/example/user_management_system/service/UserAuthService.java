@@ -5,12 +5,14 @@ import com.example.user_management_system.dto.request.UserRequest;
 import com.example.user_management_system.dto.response.LoginResponse;
 import com.example.user_management_system.dto.response.UserProfileResponse;
 import com.example.user_management_system.entity.User;
+import com.example.user_management_system.exception.AccessDeniedException;
 import com.example.user_management_system.exception.InvalidLoginException;
 import com.example.user_management_system.exception.InvalidResetTokenException;
 import com.example.user_management_system.exception.UserNotFoundException;
 import com.example.user_management_system.exception.UsernameAlreadyExistsException;
 import com.example.user_management_system.repository.UserRepository;
 import com.example.user_management_system.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +24,14 @@ public class UserAuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final EmailService emailService;
+    private final String portalUrl;
 
-    public UserAuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, EmailService emailService) {
+    public UserAuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, EmailService emailService, @Value("${app.portal-url}") String portalUrl) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.emailService = emailService;
+        this.portalUrl = portalUrl;
     }
 
     public UserProfileResponse register(RegisterRequest request) {
@@ -41,11 +45,28 @@ public class UserAuthService {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setDob(request.getDob());
-        user.setStatus(User.Status.ACTIVE);
+        user.setStatus(User.Status.INACTIVE);
 
         userRepository.save(user);
 
+        String token = jwtUtil.generateVerifyToken(user.getUsername());
+        String verifyLink = portalUrl + "/verify-email?token=" + token;
+        emailService.sendVerificationEmail(user.getEmail(), verifyLink);
+
         return toProfileResponse(user);
+    }
+
+    public void verifyEmail(String token) {
+        if (!jwtUtil.isTokenValid(token) || !"verify".equals(jwtUtil.extractPurpose(token))) {
+            throw new InvalidResetTokenException();
+        }
+
+        String username = jwtUtil.extractUsername(token);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
+
+        user.setStatus(User.Status.ACTIVE);
+        userRepository.save(user);
     }
 
     public LoginResponse login(String username, String rawPassword) {
@@ -54,6 +75,10 @@ public class UserAuthService {
 
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new InvalidLoginException();
+        }
+
+        if (user.getStatus() == User.Status.INACTIVE) {
+            throw new AccessDeniedException("Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email.");
         }
 
         String token = jwtUtil.generateToken(user.getUsername(), "USER");
@@ -65,7 +90,7 @@ public class UserAuthService {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             String token = jwtUtil.generateResetToken(user.getUsername());
-            String resetLink = "http://localhost:5174/reset-password?token=" + token;
+            String resetLink = portalUrl + "/reset-password?token=" + token;
             emailService.sendResetPasswordEmail(user.getEmail(), resetLink);
         }
     }

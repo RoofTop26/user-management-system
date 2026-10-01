@@ -1,6 +1,7 @@
 package com.example.user_management_system.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -23,12 +24,23 @@ public class EmailService {
     }
 
     public void sendResetPasswordEmail(String toEmail, String resetLink) {
+        sendEmail(toEmail, "Đặt lại mật khẩu",
+                "Nhấn vào link sau để đặt lại mật khẩu: <a href=\"" + resetLink + "\">" + resetLink + "</a>");
+    }
+
+    public void sendVerificationEmail(String toEmail, String verifyLink) {
+        sendEmail(toEmail, "Xác nhận đăng ký tài khoản",
+                "Nhấn vào link sau để xác nhận đăng ký tài khoản: <a href=\"" + verifyLink + "\">" + verifyLink + "</a>");
+    }
+
+    @Async
+    public void sendEmail(String toEmail, String subject, String htmlBody) {
         String credentials = Base64.getEncoder().encodeToString(("api:" + apiKey).getBytes(StandardCharsets.UTF_8));
 
         String form = "from=" + encode("User Management System <no-reply@" + domain + ">")
                 + "&to=" + encode(toEmail)
-                + "&subject=" + encode("Đặt lại mật khẩu")
-                + "&html=" + encode("Nhấn vào link sau để đặt lại mật khẩu: <a href=\"" + resetLink + "\">" + resetLink + "</a>");
+                + "&subject=" + encode(subject)
+                + "&html=" + encode(htmlBody);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.mailgun.net/v3/" + domain + "/messages"))
