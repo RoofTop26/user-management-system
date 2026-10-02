@@ -1,7 +1,7 @@
 package com.example.user_management_system.controller;
 
-import com.example.user_management_system.dto.request.AdminRequest;
 import com.example.user_management_system.dto.request.ForgotPasswordRequest;
+import com.example.user_management_system.dto.request.LoginRequest;
 import com.example.user_management_system.dto.request.RegisterRequest;
 import com.example.user_management_system.dto.request.ResetPasswordRequest;
 import com.example.user_management_system.dto.request.UserRequest;
@@ -34,8 +34,14 @@ public class UserAuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @PostMapping("/verify-email")
+    public ResponseEntity<Void> verifyEmail(@RequestBody Map<String, String> body) {
+        userAuthService.verifyEmail(body.get("token"));
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody AdminRequest request) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         LoginResponse response = userAuthService.login(request.getUsername(), request.getPassword());
         return ResponseEntity.ok(response);
     }

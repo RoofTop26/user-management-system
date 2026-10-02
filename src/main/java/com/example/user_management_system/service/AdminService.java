@@ -19,11 +19,13 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final RateLimitService rateLimitService;
 
-    public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, RateLimitService rateLimitService) {
         this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.rateLimitService = rateLimitService;
     }
 
     public Admin createAdmin(String username, String rawPassword) {
@@ -37,6 +39,16 @@ public class AdminService {
     }
 
     public LoginResponse login(String username, String rawPassword) {
+        boolean allowed = true;
+        try {
+            allowed = rateLimitService.isAllowed("login:" + username, 5, 60);
+        } catch (Exception ex) {
+            System.out.println("Redis lỗi, bỏ qua rate limit: " + ex.getMessage());
+        }
+        if (!allowed) {
+            throw new InvalidLoginException();
+        }
+
         Admin admin = adminRepository.findByUsername(username)
                 .orElseThrow(InvalidLoginException::new);
 
