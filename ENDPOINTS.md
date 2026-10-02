@@ -1,4 +1,4 @@
-## Tổng cộng: 20 endpoint (13 admin + 7 portal)
+## Tổng cộng: 21 endpoint (13 admin + 8 portal)
 
 ## Admin (13 endpoint)
 
@@ -18,11 +18,12 @@
 | PATCH | /admin/users/{id} | ADMIN | Admin sửa 1 phần thông tin User |
 | DELETE | /admin/users/{id} | ADMIN | Admin xoá 1 User (không chặn chính mình) |
 
-## Portal (7 endpoint)
+## Portal (8 endpoint)
 
 | Method | Path | Quyền | Mô tả |
 |---|---|---|---|
 | POST | /portal/register | PUBLIC | User tự đăng ký tài khoản |
+| POST | /portal/verify-email | PUBLIC | Xác thực email bằng token từ email để kích hoạt tài khoản |
 | POST | /portal/login | PUBLIC | User đăng nhập, trả về token role USER |
 | POST | /portal/forgot-password | PUBLIC | Gửi email đặt lại mật khẩu nếu email tồn tại |
 | POST | /portal/reset-password | PUBLIC | Đặt lại mật khẩu bằng token từ email |

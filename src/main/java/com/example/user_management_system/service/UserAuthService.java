@@ -14,6 +14,8 @@ import com.example.user_management_system.exception.UsernameAlreadyExistsExcepti
 import com.example.user_management_system.repository.UserRepository;
 import com.example.user_management_system.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,8 @@ import java.util.Optional;
 
 @Service
 public class UserAuthService {
+    private static final Logger log = LoggerFactory.getLogger(UserAuthService.class);
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -46,7 +50,7 @@ public class UserAuthService {
         try {
             allowed = rateLimitService.isAllowed("register:" + request.getEmail(), 300);
         } catch (Exception ex) {
-            System.out.println("Redis lỗi, bỏ qua rate limit: " + ex.getMessage());
+            log.warn("Redis lỗi, bỏ qua rate limit: {}", ex.getMessage());
         }
         if (!allowed) {
             throw new TooManyRequestsException();
@@ -87,7 +91,7 @@ public class UserAuthService {
         try {
             allowed = rateLimitService.isAllowed("login:" + username, 5, 60);
         } catch (Exception ex) {
-            System.out.println("Redis lỗi, bỏ qua rate limit: " + ex.getMessage());
+            log.warn("Redis lỗi, bỏ qua rate limit: {}", ex.getMessage());
         }
         if (!allowed) {
             throw new InvalidLoginException();
@@ -113,7 +117,7 @@ public class UserAuthService {
         try {
             allowed = rateLimitService.isAllowed("forgot-pwd:" + email, 60);
         } catch (Exception ex) {
-            System.out.println("Redis lỗi, bỏ qua rate limit: " + ex.getMessage());
+            log.warn("Redis lỗi, bỏ qua rate limit: {}", ex.getMessage());
         }
         if (!allowed) {
             return;

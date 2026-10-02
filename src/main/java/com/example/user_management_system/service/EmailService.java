@@ -23,18 +23,19 @@ public class EmailService {
         this.domain = domain;
     }
 
+    @Async
     public void sendResetPasswordEmail(String toEmail, String resetLink) {
         sendEmail(toEmail, "Đặt lại mật khẩu",
                 "Nhấn vào link sau để đặt lại mật khẩu: <a href=\"" + resetLink + "\">" + resetLink + "</a>");
     }
 
+    @Async
     public void sendVerificationEmail(String toEmail, String verifyLink) {
         sendEmail(toEmail, "Xác nhận đăng ký tài khoản",
                 "Nhấn vào link sau để xác nhận đăng ký tài khoản: <a href=\"" + verifyLink + "\">" + verifyLink + "</a>");
     }
 
-    @Async
-    public void sendEmail(String toEmail, String subject, String htmlBody) {
+    private void sendEmail(String toEmail, String subject, String htmlBody) {
         String credentials = Base64.getEncoder().encodeToString(("api:" + apiKey).getBytes(StandardCharsets.UTF_8));
 
         String form = "from=" + encode("User Management System <no-reply@" + domain + ">")
