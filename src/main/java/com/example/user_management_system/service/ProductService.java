@@ -55,6 +55,7 @@ public class ProductService {
 
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         Product product = findProduct(id);
+        Category category = findCategory(request.getCategoryId());
 
         product.setName(request.getName());
         product.setDescription(request.getDescription());
@@ -62,6 +63,7 @@ public class ProductService {
         product.setStock(request.getStock());
         product.setImageUrl(request.getImageUrl());
         product.setStatus(request.getStatus());
+        product.setCategory(category);
         return toResponse(productRepository.save(product));
     }
 
@@ -85,6 +87,9 @@ public class ProductService {
         }
         if (request.getStatus() != null) {
             product.setStatus(request.getStatus());
+        }
+        if (request.getCategoryId() != null) {
+            product.setCategory(findCategory(request.getCategoryId()));
         }
         return toResponse(productRepository.save(product));
     }
