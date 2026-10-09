@@ -3,9 +3,11 @@ package com.example.user_management_system.service;
 import com.example.user_management_system.dto.request.CategoryRequest;
 import com.example.user_management_system.dto.response.CategoryResponse;
 import com.example.user_management_system.entity.Category;
+import com.example.user_management_system.exception.CategoryHasProductsException;
 import com.example.user_management_system.exception.CategoryNotFoundException;
 import com.example.user_management_system.exception.UsernameAlreadyExistsException;
 import com.example.user_management_system.repository.CategoryRepository;
+import com.example.user_management_system.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,9 +16,11 @@ import java.util.List;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, ProductRepository productRepository) {
         this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
     }
 
     public List<CategoryResponse> getAllCategories() {
@@ -76,6 +80,9 @@ public class CategoryService {
 
     public void deleteCategory(Long id) {
         Category category = findCategory(id);
+        if (!productRepository.findByCategoryId(id).isEmpty()) {
+            throw new CategoryHasProductsException();
+        }
         categoryRepository.delete(category);
     }
 
