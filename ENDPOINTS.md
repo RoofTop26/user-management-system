@@ -1,6 +1,6 @@
-## Tổng cộng: 21 endpoint (13 admin + 8 portal)
+## Tổng cộng: 34 endpoint (26 admin + 8 portal)
 
-## Admin (13 endpoint)
+## Admin (26 endpoint)
 
 | Method | Path | Quyền | Mô tả |
 |---|---|---|---|
@@ -17,6 +17,19 @@
 | PUT | /admin/users/{id} | ADMIN | Admin sửa toàn bộ thông tin 1 User |
 | PATCH | /admin/users/{id} | ADMIN | Admin sửa 1 phần thông tin User |
 | DELETE | /admin/users/{id} | ADMIN | Admin xoá 1 User (không chặn chính mình) |
+| GET | /admin/categories | ADMIN | Lấy danh sách tất cả danh mục |
+| GET | /admin/categories/{id} | ADMIN | Lấy chi tiết 1 danh mục theo id |
+| POST | /admin/categories | ADMIN | Admin tạo 1 danh mục mới (trùng name trả 409) |
+| PUT | /admin/categories/{id} | ADMIN | Admin sửa toàn bộ thông tin 1 danh mục |
+| PATCH | /admin/categories/{id} | ADMIN | Admin sửa 1 phần thông tin danh mục |
+| DELETE | /admin/categories/{id} | ADMIN | Admin xoá 1 danh mục |
+| GET | /admin/products | ADMIN | Lấy danh sách tất cả sản phẩm |
+| GET | /admin/products/{id} | ADMIN | Lấy chi tiết 1 sản phẩm theo id |
+| GET | /admin/products/category/{categoryId} | ADMIN | Lấy danh sách sản phẩm theo danh mục |
+| POST | /admin/products | ADMIN | Admin tạo 1 sản phẩm mới |
+| PUT | /admin/products/{id} | ADMIN | Admin sửa toàn bộ thông tin 1 sản phẩm |
+| PATCH | /admin/products/{id} | ADMIN | Admin sửa 1 phần thông tin sản phẩm |
+| DELETE | /admin/products/{id} | ADMIN | Admin xoá 1 sản phẩm |
 
 ## Portal (8 endpoint)
 

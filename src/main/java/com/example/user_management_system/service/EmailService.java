@@ -10,9 +10,12 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class EmailService {
+    private static final Logger log = LoggerFactory.getLogger(UserAuthService.class);
 
     private final String apiKey;
     private final String domain;
@@ -51,7 +54,10 @@ public class EmailService {
                 .build();
 
         try {
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                           
+                log.info(">>> Bắt đầu gọi Mailgun: {} - Thread: {}", System.currentTimeMillis(), Thread.currentThread().getName());
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                log.info(">>> Mailgun xong: {} - Thread: {}", System.currentTimeMillis(), Thread.currentThread().getName());
             System.out.println("Mailgun status: " + response.statusCode());
             System.out.println("Mailgun response: " + response.body());
         } catch (Exception ex) {
