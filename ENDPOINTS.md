@@ -1,6 +1,6 @@
-## Tổng cộng: 21 endpoint (13 admin + 8 portal)
+## Tổng cộng: 27 endpoint (19 admin + 8 portal)
 
-## Admin (13 endpoint)
+## Admin (19 endpoint)
 
 | Method | Path | Quyền | Mô tả |
 |---|---|---|---|
@@ -17,6 +17,12 @@
 | PUT | /admin/users/{id} | ADMIN | Admin sửa toàn bộ thông tin 1 User |
 | PATCH | /admin/users/{id} | ADMIN | Admin sửa 1 phần thông tin User |
 | DELETE | /admin/users/{id} | ADMIN | Admin xoá 1 User (không chặn chính mình) |
+| GET | /admin/categories | ADMIN | Lấy danh sách tất cả danh mục |
+| GET | /admin/categories/{id} | ADMIN | Lấy chi tiết 1 danh mục theo id |
+| POST | /admin/categories | ADMIN | Admin tạo 1 danh mục mới (trùng name trả 409) |
+| PUT | /admin/categories/{id} | ADMIN | Admin sửa toàn bộ thông tin 1 danh mục |
+| PATCH | /admin/categories/{id} | ADMIN | Admin sửa 1 phần thông tin danh mục |
+| DELETE | /admin/categories/{id} | ADMIN | Admin xoá 1 danh mục |
 
 ## Portal (8 endpoint)
 
