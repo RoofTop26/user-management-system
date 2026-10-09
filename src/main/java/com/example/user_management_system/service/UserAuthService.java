@@ -94,6 +94,7 @@ public class UserAuthService {
             log.warn("Redis lỗi, bỏ qua rate limit: {}", ex.getMessage());
         }
         if (!allowed) {
+            log.warn("Quá nhiều lần đăng nhập thất bại cho username: {}", username);
             throw new InvalidLoginException();
         }
 
@@ -120,6 +121,7 @@ public class UserAuthService {
             log.warn("Redis lỗi, bỏ qua rate limit: {}", ex.getMessage());
         }
         if (!allowed) {
+            log.warn("Quá nhiều lần yêu cầu quên mật khẩu cho email: {}", email);
             return;
         }
 
@@ -128,8 +130,11 @@ public class UserAuthService {
             User user = userOptional.get();
             String token = jwtUtil.generateResetToken(user.getUsername());
             String resetLink = portalUrl + "/reset-password?token=" + token;
+
+            log.info(">>> Trước gửi email: {}", System.currentTimeMillis());
             emailService.sendResetPasswordEmail(user.getEmail(), resetLink);
-        }
+            log.info(">>> Sau gửi email: {}", System.currentTimeMillis());  
+        }   
     }
 
     public void resetPassword(String token, String newPassword) {
