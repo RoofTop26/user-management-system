@@ -33,6 +33,18 @@ public class CategoryService {
         return toResponse(findCategory(id));
     }
 
+    public List<CategoryResponse> getActiveCategories() {
+        return categoryRepository.findByStatus(Category.Status.ACTIVE).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public CategoryResponse getActiveCategoryById(Long id) {
+        Category category = categoryRepository.findByIdAndStatus(id, Category.Status.ACTIVE)
+                .orElseThrow(() -> new CategoryNotFoundException(id));
+        return toResponse(category);
+    }
+
     public CategoryResponse createCategory(CategoryRequest request) {
         if (categoryRepository.findByName(request.getName()).isPresent()) {
             throw new UsernameAlreadyExistsException(request.getName());

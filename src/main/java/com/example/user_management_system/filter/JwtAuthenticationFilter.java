@@ -56,6 +56,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if (method.equals("GET")
+                && (path.equals("/portal/categories") || path.startsWith("/portal/categories/"))) {
+            return true;
+        }
+
+        if (method.equals("GET")
+                && (path.equals("/portal/products") || path.startsWith("/portal/products/"))) {
+            return true;
+        }
+
         return false;
     }
 

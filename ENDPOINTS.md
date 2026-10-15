@@ -43,3 +43,8 @@
 | GET | /portal/me | USER | User xem hồ sơ của chính mình |
 | PATCH | /portal/me | USER | User sửa hồ sơ (chỉ name, dob) |
 | PATCH | /portal/me/password | USER | User tự đổi password |
+| GET | /portal/categories | PUBLIC | Lấy danh sách danh mục ACTIVE |
+| GET | /portal/categories/{id} | PUBLIC | Lấy chi tiết 1 danh mục ACTIVE theo id |
+| GET | /portal/products | PUBLIC | Lấy danh sách sản phẩm ACTIVE |
+| GET | /portal/products/{id} | PUBLIC | Lấy chi tiết 1 sản phẩm ACTIVE theo id |
+| GET | /portal/products/category/{categoryId} | PUBLIC | Lấy danh sách sản phẩm ACTIVE theo danh mục |
