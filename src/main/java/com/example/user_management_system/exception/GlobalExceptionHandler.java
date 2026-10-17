@@ -41,6 +41,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
+    @ExceptionHandler(CartItemNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleCartItemNotFound(CartItemNotFoundException ex) {
+        Map<String, String> body = new HashMap<>();
+        body.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(CartValidationException.class)
+    public ResponseEntity<Map<String, String>> handleCartValidation(CartValidationException ex) {
+        Map<String, String> body = new HashMap<>();
+        body.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
     @ExceptionHandler(CategoryHasProductsException.class)
     public ResponseEntity<Map<String, String>> handleCategoryHasProducts(CategoryHasProductsException ex) {
         Map<String, String> body = new HashMap<>();

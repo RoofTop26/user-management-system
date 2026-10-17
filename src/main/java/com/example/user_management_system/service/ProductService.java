@@ -39,6 +39,24 @@ public class ProductService {
                 .toList();
     }
 
+    public List<ProductResponse> getActiveProducts() {
+        return productRepository.findByStatus(Product.Status.ACTIVE).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public ProductResponse getActiveProductById(Long id) {
+        Product product = productRepository.findByIdAndStatus(id, Product.Status.ACTIVE)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+        return toResponse(product);
+    }
+
+    public List<ProductResponse> getActiveProductsByCategoryId(Long categoryId) {
+        return productRepository.findByCategoryIdAndStatus(categoryId, Product.Status.ACTIVE).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public ProductResponse createProduct(ProductRequest request) {
         Category category = findCategory(request.getCategoryId());
 
