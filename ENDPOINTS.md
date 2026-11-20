@@ -1,4 +1,4 @@
-## Tổng cộng: 34 endpoint (26 admin + 8 portal)
+## Tổng cộng: 44 endpoint (26 admin + 18 portal)
 
 ## Admin (26 endpoint)
 
@@ -31,7 +31,7 @@
 | PATCH | /admin/products/{id} | ADMIN | Admin sửa 1 phần thông tin sản phẩm |
 | DELETE | /admin/products/{id} | ADMIN | Admin xoá 1 sản phẩm |
 
-## Portal (8 endpoint)
+## Portal (18 endpoint)
 
 | Method | Path | Quyền | Mô tả |
 |---|---|---|---|
