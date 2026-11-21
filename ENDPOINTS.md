@@ -1,6 +1,6 @@
-## Tổng cộng: 34 endpoint (26 admin + 8 portal)
+## Tổng cộng: 52 endpoint (30 admin + 22 portal)
 
-## Admin (26 endpoint)
+## Admin (30 endpoint)
 
 | Method | Path | Quyền | Mô tả |
 |---|---|---|---|
@@ -30,8 +30,12 @@
 | PUT | /admin/products/{id} | ADMIN | Admin sửa toàn bộ thông tin 1 sản phẩm |
 | PATCH | /admin/products/{id} | ADMIN | Admin sửa 1 phần thông tin sản phẩm |
 | DELETE | /admin/products/{id} | ADMIN | Admin xoá 1 sản phẩm |
+| GET | /admin/orders | ADMIN | Lấy danh sách tất cả đơn hàng |
+| GET | /admin/orders/{id} | ADMIN | Lấy chi tiết 1 đơn hàng (kèm userId, userName) |
+| PATCH | /admin/orders/{id}/confirm | ADMIN | Xác nhận đơn hàng PENDING thành CONFIRMED |
+| PATCH | /admin/orders/{id}/cancel | ADMIN | Hủy đơn hàng PENDING hoặc CONFIRMED, hoàn stock |
 
-## Portal (8 endpoint)
+## Portal (22 endpoint)
 
 | Method | Path | Quyền | Mô tả |
 |---|---|---|---|
@@ -53,3 +57,7 @@
 | PUT | /portal/cart/{itemId} | USER | Sửa số lượng 1 item trong giỏ hàng |
 | DELETE | /portal/cart/{itemId} | USER | Xóa 1 item khỏi giỏ hàng |
 | DELETE | /portal/cart | USER | Xóa toàn bộ giỏ hàng |
+| POST | /portal/checkout | USER | Đặt hàng từ giỏ hàng, trừ tồn kho, tạo đơn PENDING |
+| GET | /portal/orders | USER | Xem danh sách đơn hàng của mình, mới nhất trước |
+| GET | /portal/orders/{id} | USER | Xem chi tiết 1 đơn hàng của mình |
+| POST | /portal/orders/{id}/cancel | USER | Hủy đơn hàng PENDING, hoàn stock |
