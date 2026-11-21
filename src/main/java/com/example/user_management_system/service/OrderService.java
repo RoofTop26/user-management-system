@@ -1,6 +1,7 @@
 package com.example.user_management_system.service;
 
 import com.example.user_management_system.dto.request.CheckoutRequest;
+import com.example.user_management_system.dto.response.AdminOrderResponse;
 import com.example.user_management_system.dto.response.OrderItemResponse;
 import com.example.user_management_system.dto.response.OrderResponse;
 import com.example.user_management_system.entity.CartItem;
@@ -131,6 +132,51 @@ public class OrderService {
         return toResponse(savedOrder, orderItems);
     }
 
+    public List<AdminOrderResponse> getAllOrders() {
+        return orderRepository.findAll().stream()
+                .map(order -> toAdminResponse(order, orderItemRepository.findByOrderId(order.getId())))
+                .toList();
+    }
+
+    public AdminOrderResponse getAdminOrder(Long orderId) {
+        Order order = findOrderById(orderId);
+        return toAdminResponse(order, orderItemRepository.findByOrderId(order.getId()));
+    }
+
+    public AdminOrderResponse confirmOrder(Long orderId) {
+        Order order = findOrderById(orderId);
+
+        if (order.getStatus() != Order.Status.PENDING) {
+            throw new CartValidationException("Chỉ được xác nhận đơn hàng đang chờ xác nhận");
+        }
+
+        order.setStatus(Order.Status.CONFIRMED);
+        Order savedOrder = orderRepository.save(order);
+
+        return toAdminResponse(savedOrder, orderItemRepository.findByOrderId(savedOrder.getId()));
+    }
+
+    public AdminOrderResponse adminCancelOrder(Long orderId) {
+        Order order = findOrderById(orderId);
+
+        if (order.getStatus() == Order.Status.CANCELLED) {
+            throw new CartValidationException("Đơn hàng đã bị hủy");
+        }
+
+        List<OrderItem> orderItems = orderItemRepository.findByOrderId(order.getId());
+
+        for (OrderItem orderItem : orderItems) {
+            Product product = orderItem.getProduct();
+            product.setStock(product.getStock() + orderItem.getQuantity());
+            productRepository.save(product);
+        }
+
+        order.setStatus(Order.Status.CANCELLED);
+        Order savedOrder = orderRepository.save(order);
+
+        return toAdminResponse(savedOrder, orderItems);
+    }
+
     private User findUser(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(username));
@@ -145,6 +191,25 @@ public class OrderService {
         }
 
         return order;
+    }
+
+    private Order findOrderById(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new CartValidationException("Không tìm thấy đơn hàng với id: " + orderId));
+    }
+
+    private AdminOrderResponse toAdminResponse(Order order, List<OrderItem> orderItems) {
+        OrderResponse orderResponse = toResponse(order, orderItems);
+
+        return new AdminOrderResponse(
+                order.getId(),
+                order.getUser().getId(),
+                order.getUser().getUsername(),
+                order.getTotalAmount(),
+                order.getStatus(),
+                order.getNote(),
+                order.getCreatedAt(),
+                orderResponse.getItems());
     }
 
     private OrderResponse toResponse(Order order, List<OrderItem> orderItems) {
